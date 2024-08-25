@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Panel</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            display: flex;
+            justify-content: flex-end;
+            padding: 10px;
+            background-color: #f8f9fa;
+        }
+
+        .header-info {
+            margin-right: 650px;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-info"style="">
+            <p><strong>Username:</strong> {{ user.username }}</p>
+            <p><strong>Assets:</strong> {{ user.assets }}</p>
+        </div>
+        <a href="{{ url_for('update_user',id=user.id) }}" class="btn btn-danger"style="margin-right: 30px; background-color: #9835dc;">edit account<br /> data</a> 
+        <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+    </div>
+    <div class="main-content">
+        <!-- Main content will be added here later -->
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

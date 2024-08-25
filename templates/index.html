@@ -1,0 +1,68 @@
+<!--
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management System</title>
+</head>
+<body>
+    <h1>Student Management System</h1>
+    <a href="{{ url_for('add_user') }}">Add New Student</a>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Age</th>
+            <th>Grade</th>
+            <th>Actions</th>
+        </tr>
+        {% for student in students %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.name }}</td>
+            <td>{{ user.age }}</td>
+            <td>{{ user.grade }}</td>
+            <td>
+                <a href="{{ url_for('update_user', id=user.id) }}">Edit</a>
+                <a href="{{ url_for('delete_user', id=user.id) }}">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Secure E-commerce</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Add your custom CSS here if needed -->
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white text-center">
+                        <h3>Welcome to Secure E-commerce</h3>
+                    </div>
+                    <div class="card-body text-center">
+                        <p class="lead">Your gateway to a secure shopping experience</p>
+                        <hr>
+                        <p>Please choose an option below:</p>
+                        <a href="{{url_for('login')}}" class="btn btn-primary btn-block mb-2">Sign In</a>
+                        <a href="{{ url_for('add_user') }}" class="btn btn-secondary btn-block">Sign Up</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Add your custom scripts here if needed -->
+</body>
+</html>
