@@ -5,7 +5,6 @@ import db
 import os
 from werkzeug.utils import secure_filename
 from jinja2 import Environment
- 
 
 def endswith_filter(value, extension):
     return value.endswith(extension)
@@ -15,16 +14,11 @@ env.filters['endswith'] = endswith_filter
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
 
-
-
-
-
 UPLOAD_FOLDER = 'static/uploads/'
-app.secret_key = "secret key"
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif', 'mp4', 'avi', 'mov'])
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS 
 def allowed_file_size(file):
@@ -32,6 +26,7 @@ def allowed_file_size(file):
     file_size = file.tell()
     file.seek(0, os.SEEK_SET)
     return file_size <= app.config['MAX_CONTENT_LENGTH']
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
@@ -52,10 +47,10 @@ def upload_file():
     else:
         flash('File type not allowed')
         return redirect(request.url)
+
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-
 
 @app.route('/')
 def welcome_page():
@@ -93,13 +88,12 @@ def update_user(id):
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        likes = request.form.get('likes', user['likes'])  # Use the existing value if not provided
-        user_type = request.form.get('user_type', user['user_type'])  # Use the existing value if not provided
+        likes = request.form.get('likes', user['likes'])
+        user_type = request.form.get('user_type', user['user_type'])
 
         if not username:
             return "Missing form data", 400
 
-        # Only hash the password if it's being updated
         if password:
             hashed_password = generate_password_hash(password)
             db.update_user_with_password(username, hashed_password, likes, user_type, id)
@@ -121,10 +115,9 @@ def add_user():
             return "Invalid input", 400
 
         if db.get_user_by_username(username):
-            return "Username already exists", 400
+            return "Username already exists", 400            
 
-        # Server-side password validation
-        strong_password_regex = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$')
+        strong_password_regex = re.compile(r'^(?=.[a-z])(?=.[A-Z])(?=.\d)(?=.[@$!%?&])[A-Za-z\d@$!%?&]{8,}$')
         if not strong_password_regex.match(password):
             return "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.", 400
 
@@ -153,7 +146,6 @@ def login():
         username = request.form['username'].strip()
         password = request.form['password'].strip()
 
-        # Query the database to verify the user's credentials
         user = db.get_user_by_username(username)
 
         if user is None or not check_password_hash(user['password'], password):
@@ -173,10 +165,8 @@ def login():
 
 @app.route('/manage_admins', methods=['GET', 'POST'])
 def manage_admins():
-    # Check if there are existing admins
     admin_exists = db.check_if_admin_exists()
 
-    # If no admins exist, show the admin creation form
     if not admin_exists:
         if request.method == 'POST':
             new_username = request.form.get('username')
@@ -186,7 +176,6 @@ def manage_admins():
                 return "Missing form data", 400
             if db.get_user_by_username(new_username):
                 return "Username already exists", 400            
-            # Hash the password once
             hashed_password = generate_password_hash(password)
             db.add_admin(new_username, hashed_password)
             session['username'] = new_username
@@ -195,10 +184,10 @@ def manage_admins():
             return redirect(url_for('manage_admins'))
 
         return render_template('create_admin.html')
+
     if 'username' not in session:
         return redirect(url_for('login'))
 
-    # Fetch current user details
     username = session['username']
     current_user = db.get_user_by_username(username)
 
@@ -221,7 +210,6 @@ def manage_admins():
         if not username or not user_id:
             return "Missing form data", 400
 
-        # Only hash the password if it's being updated
         if password:
             hashed_password = generate_password_hash(password)
             db.update_user_with_password(username, hashed_password, likes, user_type, user_id)
@@ -234,10 +222,8 @@ def manage_admins():
 @app.route('/manage_posts', methods=['GET', 'POST'])
 def manage_posts():
     user = db.get_user_by_username(session.get('username'))
-
     if user is None or user['user_type'] != 2:  # Check if the user is an admin
         return redirect(url_for('user_panel'))
-
     posts = db.get_all_posts()  # Fetch all posts
     return render_template('manage_posts.html', posts=posts, user=user)
 @app.route('/author_panel')
@@ -270,7 +256,13 @@ def create_post():
             file_url = filename
             media.save(os.path.join('static/uploads', filename))
         
-        db.add_post(session['user_id'],title,content,file_url)
+        conn = db.get_db_connection()
+        conn.execute('''
+            INSERT INTO posts (author_id, title, content, file_url)
+            VALUES (?, ?, ?, ?)
+        ''', (session['user_id'], title, content, file_url))
+        conn.commit()
+        conn.close()
         return redirect(url_for('author_panel'))
     
     return render_template('create_post.html')
@@ -291,22 +283,30 @@ def edit_post(post_id):
         return redirect(url_for('login'))
 
     user = db.get_user_by_username(session['username'])
-    if user is None or user['user_type'] != 1:
-        return redirect(url_for('user_panel'))
-
     post = db.get_post_by_id(post_id)
-    if post is None or post['author_id'] != user['id']:
-        return redirect(url_for('author_panel'))
+
+    if post is None:
+        return "Post not found", 404
+
+    # Ensure the user has the right to edit the post
+    if user['user_type'] == 1 and user['id'] != post['author_id']:
+        return redirect(url_for('user_panel'))
 
     if request.method == 'POST':
         title = request.form.get('title')
         content = request.form.get('content')
+        media = request.files.get('media')
 
-        if not title or not content:
-            return "Missing title or content", 400
+        # Handle file upload
+        file_url = post['file_url']  # Keep the existing file URL unless a new file is uploaded
+        if media and allowed_file(media.filename):
+            filename = secure_filename(media.filename)
+            file_url = filename
+            media.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
+        # Update the post in the database
         db.update_post(post_id, title, content)
-        return redirect(url_for('author_panel'))
+        return redirect(url_for('manage_posts'))
 
     return render_template('edit_post.html', post=post)
 
@@ -315,6 +315,11 @@ def delete_post(post_id):
     if 'username' not in session:
         flash('You need to be logged in to delete a post.')
         return redirect(url_for('login'))
+
+    user = db.get_user_by_username(session['username'])
+    if user is None or user['user_type'] not in [1, 2]:
+        flash('You do not have permission to delete posts.')
+        return redirect(url_for('user_panel'))
 
     conn = db.get_db_connection()
 
@@ -325,8 +330,8 @@ def delete_post(post_id):
         flash('Post not found.')
         return redirect(url_for('user_panel'))
 
-    # Check if the logged-in user is the author of the post
-    if post['author_id'] != session['user_id']:
+    # Check if the logged-in user is the author of the post or an admin
+    if post['author_id'] != session['user_id'] and user['user_type'] != 2:
         flash('You do not have permission to delete this post.')
         return redirect(url_for('user_panel'))
 
@@ -336,7 +341,7 @@ def delete_post(post_id):
 
     # Delete the associated media file from the uploads folder, if any
     if post['file_url']:
-        file_path = os.path.join(app.static_folder, 'uploads', post['file_url'])
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], post['file_url'])
         try:
             if os.path.exists(file_path):
                 os.remove(file_path)
@@ -351,42 +356,20 @@ def delete_post(post_id):
 
 @app.route('/like_post/<int:post_id>', methods=['POST'])
 def like_post(post_id):
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-
-    user_id = session['user_id']
-    conn=db.get_db_connection() 
-    # Check if the user already liked the post
-    already_liked = conn.execute('''
-        SELECT * FROM post_likes WHERE post_id = ? AND user_id = ?
-    ''', (post_id, user_id)).fetchone()
-
-    if already_liked:
-        return redirect(url_for('user_panel'))
-
-    # Increment the like count
-    conn.execute('''
-        UPDATE posts SET likes = likes + 1 WHERE id = ?
-    ''', (post_id,))
-
-    # Insert into the post_likes table
-    conn.execute('''
-        INSERT INTO post_likes (post_id, user_id) VALUES (?, ?)
-    ''', (post_id, user_id))
-    conn.commit()
-
-    return redirect(url_for('user_panel'))
-
-@app.route('/comment_post/<int:post_id>', methods=['POST'])
-def comment_post(post_id):
     if 'username' not in session:
         return redirect(url_for('login'))
 
     user = db.get_user_by_username(session['username'])
-    if user is None:
-        return redirect(url_for('user_panel'))
+    db.add_like(post_id, user['id'])
+    return redirect(url_for('user_panel'))
 
-    content = request.form['content']
+@app.route('/comment/<int:post_id>', methods=['POST'])
+def comment_on_post(post_id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    user = db.get_user_by_username(session['username'])
+    comment = request.form.get('comment')
     media = request.files.get('media')
 
     file_url = None
@@ -394,20 +377,13 @@ def comment_post(post_id):
         filename = secure_filename(media.filename)
         file_url = filename
         media.save(os.path.join('static/uploads', filename))
-        
-    db.add_comment(post_id, user['username'], content, file_url)
+    
+    db.add_comment(post_id, user['id'], comment, file_url)
     return redirect(url_for('user_panel'))
-
-
-
- 
-
-
 @app.route('/logout')
 def logout():
     session.pop('username', None)
     session.pop('user_id', None)
     return redirect(url_for('login'))
-
 if __name__ == '__main__':
     app.run(debug=True)
