@@ -197,9 +197,12 @@ def manage_admins():
     username = session['username']
     current_user = db.get_user_by_username(username)
 
-    if current_user is None or current_user['user_type'] != 2:
+    if current_user is None:
         return redirect(url_for('user_panel'))
-
+    if current_user['user_type'] == 0:
+        return redirect(url_for('user_panel'))
+    elif current_user['user_type'] == 1:
+        return redirect(url_for('author_panel'))
     # Fetch users for display and management
     users = db.get_users()
 
@@ -223,7 +226,15 @@ def manage_admins():
         return redirect(url_for('manage_admins'))
 
     return render_template('manage_admins.html', users=users)
+@app.route('/manage_posts', methods=['GET', 'POST'])
+def manage_posts():
+    user = db.get_user_by_username(session.get('username'))
 
+    if user is None or user['user_type'] != 2:  # Check if the user is an admin
+        return redirect(url_for('user_panel'))
+
+    posts = db.get_all_posts()  # Fetch all posts
+    return render_template('manage_posts.html', posts=posts, user=user)
 @app.route('/author_panel')
 def author_panel():
     if 'username' not in session:
