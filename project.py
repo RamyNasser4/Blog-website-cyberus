@@ -27,6 +27,11 @@ ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif', 'mp4', 'avi', 'mov'])
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS 
+def allowed_file_size(file):
+    file.seek(0, os.SEEK_END)
+    file_size = file.tell()
+    file.seek(0, os.SEEK_SET)
+    return file_size <= app.config['MAX_CONTENT_LENGTH']
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
@@ -245,7 +250,7 @@ def author_panel():
         return redirect(url_for('user_panel'))
     if session['user_type'] == 0:
         return redirect(url_for('user_panel'))
-    if session['user_type'] == 2:
+    elif session['user_type'] == 2:
         return redirect(url_for('manage_admins'))
     posts = db.get_posts_by_author(user['id'])
     return render_template('author_panel.html', posts=posts, user=user)
@@ -260,7 +265,7 @@ def create_post():
         media = request.files.get('media')
         
         file_url = None
-        if media and allowed_file(media.filename):
+        if media and allowed_file(media.filename) and allowed_file_size(media):
             filename = secure_filename(media.filename)
             file_url = filename
             media.save(os.path.join('static/uploads', filename))
@@ -274,7 +279,7 @@ def create_post():
 def search_posts():
     if session['user_type'] == 1:
         return redirect(url_for('author_panel'))
-    if session['user_type'] == 2:
+    elif session['user_type'] == 2:
         return redirect(url_for('manage_admins'))
     query = request.args.get('query', '')
     posts = db.search_posts(query)
