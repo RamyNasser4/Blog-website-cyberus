@@ -13,7 +13,7 @@
         {% for post in posts %}
         <li>
             <h2>{{ post.title }}</h2>
-            <p>{{ post.content }}</p>
+            <p>{{ post.content }}- Likes:{{post.likes}}</p>
             {% if post.file_url %}
             {% set file_extension = post.file_url.split('.')[-1] %}
             {% if file_extension in ['mp4', 'avi', 'mov'] %}
