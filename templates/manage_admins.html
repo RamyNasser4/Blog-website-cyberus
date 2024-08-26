@@ -12,25 +12,25 @@
         <tr>
             <th>Username</th>
             <th>User Type</th>
-            <th>Assets</th>
+            <th>likes</th>
             <th>Actions</th>
         </tr>
         {% for user in users %}
         <tr>
             <td>{{ user.username }}</td>
             <td>{{ user.user_type }}</td>
-            <td>{{ user.assets }}</td>
+            <td>{{ user.likes }}</td>
             <td>
-                <!-- Form to toggle user type and update assets -->
+                <!-- Form to toggle user type and update likes -->
                 <form action="{{ url_for('update_user', id=user.id) }}" method="POST">
                     <input type="hidden" name="username" value="{{ user.username }}">
                     <label for="password">password:</label>
                     <input type="text" name="password" value="{{ user.password }}">
-                    <label for="assets">Assets:</label>
-                    <input type="text" id="assets" name="assets" value="{{ user.assets }}" required>
+                    <label for="likes">likes:</label>
+                    <input type="text" id="likes" name="likes" value="{{ user.likes }}" required>
                     <select name="user_type">
                         <option value="0" {% if user.user_type==0 %}selected{% endif %}>Regular User</option>
-                        <option value="1" {% if user.user_type==1 %}selected{% endif %}>Seller</option>
+                        <option value="1" {% if user.user_type==1 %}selected{% endif %}>Author</option>
                         <option value="2" {% if user.user_type==2 %}selected{% endif %}>Admin</option>
                     </select>
                     <button type="submit">Update User</button>

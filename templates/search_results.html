@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+<head>
+    <title>Search Results</title>
+</head>
+<body>
+    <h1>Search Results</h1>
+    <ul>
+        {% for post in posts %}
+        <li>{{ post.title }} - {{ post.content }}</li>
+        {% else %}
+        <li>No results found</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comments on Post</title>
+</head>
+<body>
+    <h1>Comments on Post: {{ post['title'] }}</h1>
+    <p>{{ post['content'] }}</p>
+
+    <form method="post">
+        <label for="content">Your Comment:</label>
+        <textarea id="content" name="content" required></textarea>
+        <button type="submit">Submit Comment</button>
+    </form>
+
+    <h2>Comments:</h2>
+    <ul>
+        {% for comment in comments %}
+        <li>
+            <strong>{{ comment['username'] }}</strong>: {{ comment['content'] }}
+            <span>({{ comment['created_at'] }})</span>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <a href="{{ url_for('user_panel') }}">Back to User Panel</a>
+</body>
+</html>

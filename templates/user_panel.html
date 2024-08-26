@@ -4,51 +4,82 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Panel</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .header {
-            display: flex;
-            justify-content: flex-end;
-            padding: 10px;
-            background-color: #f8f9fa;
-        }
-
-        .header-info {
-            margin-right: 650px;
-        }
-
-        .main-content {
-            flex: 1;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #e9ecef;
-        }
-    </style>
+    <!-- Include your CSS file here -->
 </head>
 <body>
-    <div class="header">
-        <div class="header-info"style="">
-            <p><strong>Username:</strong> {{ user.username }}</p>
-            <p><strong>Assets:</strong> {{ user.assets }}</p>
+    <div class="user-info">
+        <p>Welcome, {{ session['username'] }}!</p>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+
+    <!-- Search Form -->
+    <div class="search">
+        <form action="{{ url_for('search_posts') }}" method="get">
+            <input type="text" name="query" placeholder="Search posts..." required>
+            <button type="submit">Search</button>
+        </form>
+    </div>
+
+    <div class="posts">
+        {% for post in posts %}
+        <div class="post">
+            <h2>{{ post['title'] }}</h2>
+            <p>
+                {{ post['content'] }} - likes: {{ post['likes'] }}
+            </p>
+
+            {% if post['file_url'] %}
+            {% set file_extension = post['file_url'].split('.')[-1].lower() %}
+
+            {% if file_extension in ['mp4', 'webm'] %}
+            <video controls style="max-width: 200px;">
+                <source src="{{ url_for('static', filename='uploads/' ~ post['file_url']) }}" type="video/{{ file_extension }}">
+                Your browser does not support the video tag.
+            </video>
+            {% elif file_extension in ['jpg', 'jpeg', 'png'] %}
+            <img src="{{ url_for('static', filename='uploads/' ~ post['file_url']) }}" alt="Post Media" style="max-width: 100px;" />
+            {% endif %}
+            {% endif %}
+
+            <div class="actions">
+                <!-- Like Button -->
+                <form action="{{ url_for('like_post', post_id=post['id']) }}" method="post">
+                    <button type="submit">Like</button>
+                </form>
+            </div>
+
+            <div class="comments">
+                <h3>Comments:</h3>
+                {% if post['id'] in comments %}
+                {% for comment in comments[post['id']] %}
+                <div class="comment">
+                    <p><strong>{{ comment['username'] }}:</strong> {{ comment['content'] }}</p>
+                    {% if comment['file_url'] %}
+                    {% set comment_extension = comment['file_url'].split('.')[-1].lower() %}
+                    {% if comment_extension in ['mp4', 'webm'] %}
+                    <video controls style="max-width: 200px;">
+                        <source src="{{ url_for('static', filename='uploads/' ~ comment['file_url']) }}" type="video/{{ comment_extension }}">
+                        Your browser does not support the video tag.
+                    </video>
+                    {% elif comment_extension in ['jpg', 'jpeg', 'png'] %}
+                    <img src="{{ url_for('static', filename='uploads/' ~ comment['file_url']) }}" alt="Comment Media" style="max-width: 100px;" />
+                    {% endif %}
+                    {% endif %}
+                </div>
+                {% endfor %}
+                {% else %}
+                <p>No comments yet.</p>
+                {% endif %}
+            </div>
+
+            <!-- Comment Form -->
+            <form action="{{ url_for('comment_post', post_id=post['id']) }}" method="post" enctype="multipart/form-data">
+                <textarea name="content" placeholder="Add a comment" required></textarea>
+                <input type="file" name="media">
+                <button type="submit">Comment</button>
+            </form>
         </div>
-        <a href="{{ url_for('update_user',id=user.id) }}" class="btn btn-danger"style="margin-right: 30px; background-color: #9835dc;">edit account<br /> data</a> 
-        <a href="{{ url_for('logout') }}" class="btn btn-danger">Logout</a>
+        {% endfor %}
     </div>
-    <div class="main-content">
-        <!-- Main content will be added here later -->
-    </div>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

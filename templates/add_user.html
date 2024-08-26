@@ -3,18 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Student</title>
+    <title>Add New USER</title>
+    <style>
+        .error {
+            color: red;
+        }
+    </style>
 </head>
 <body>
     <h1>Add New USER</h1>
-    <form action="{{ url_for('add_user') }}" method="POST">
-        <input type="text" name="username" placeholder="Name" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <input type="text" name="assets" placeholder="Assets" required>
-        <br><br>
-        <button type="submit">Add User</button>
+    <form id="userForm" method="post">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        <br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <br>
+        <label for="accountType">Account Type:</label>
+        <select id="accountType" name="account_type" required>
+            <option value="0">Regular User</option>
+            <option value="1">Author</option>
+        </select>
+        <br>
+        <button type="submit">Submit</button>
+        <p id="passwordError" class="error"></p>
     </form>
+
     <br>
     <a href="{{ url_for('welcome_page') }}">Back to navigate page</a>
+
+    <script>
+        document.getElementById('userForm').addEventListener('submit', function (event) {
+            const password = document.getElementById('password').value;
+            const passwordError = document.getElementById('passwordError');
+
+            // Define strong password criteria
+            const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+            if (!strongPasswordRegex.test(password)) {
+                passwordError.textContent = "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.";
+                event.preventDefault();  // Prevent form submission
+            } else {
+                passwordError.textContent = "";  // Clear error message
+            }
+        });
+    </script>
 </body>
 </html>
