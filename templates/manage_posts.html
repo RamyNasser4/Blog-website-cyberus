@@ -45,7 +45,9 @@
 <body>
     <div class="container">
         <h2>Manage Posts</h2>
-
+        <div class="mb-4">
+            <a href="{{ url_for('manage_admins') }}" class="btn btn-primary">Manage Admins</a>
+        </div>
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -72,6 +74,7 @@
         </table>
 
         <a href="{{ url_for('welcome_page') }}" class="btn btn-secondary">Back to Home</a>
+       
     </div>
     <!-- Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
