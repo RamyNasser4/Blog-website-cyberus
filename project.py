@@ -27,7 +27,8 @@ def allowed_file_size(file):
     file_size = file.tell()
     file.seek(0, os.SEEK_SET)
     return file_size <= app.config['MAX_CONTENT_LENGTH']
-
+def get_extension(filename):
+    return filename.rsplit('.',1)[1].lower()
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
@@ -245,6 +246,8 @@ def author_panel():
 
 @app.route('/create_post', methods=['GET', 'POST'])
 def create_post():
+    if 'username' not in session:
+        return redirect(url_for('login'))
     if session['user_type'] == 0:
         return redirect(url_for('user_panel'))
     if request.method == 'POST':
@@ -254,7 +257,7 @@ def create_post():
         
         file_url = None
         if media and allowed_file(media.filename) and allowed_file_size(media):
-            file_url = db.get_max_post()
+            file_url = db.get_max_post() + '.' + get_extension(secure_filename(media.filename))
             media.save(os.path.join('static/uploads/posts', file_url))
         db.add_post(session['user_id'],title,content,file_url)
         return redirect(url_for('author_panel'))
@@ -293,7 +296,7 @@ def edit_post(post_id):
         file_url = post['file_url']  # Keep the existing file URL unless a new file is uploaded
         if media and allowed_file(media.filename) and allowed_file_size(media):
             file_url = post_id
-            media.save(os.path.join(app.config['UPLOAD_FOLDER'] + '/posts', file_url))
+            media.save(os.path.join(app.config['UPLOAD_FOLDER'] + '/posts', file_url + '.' + get_extension(secure_filename(media.filename))))
 
         # Update the post in the database
         db.update_post(post_id, title, content)
@@ -369,7 +372,7 @@ def comment_on_post(post_id):
 
     file_url = None
     if media and allowed_file(media.filename) and allowed_file_size(media):
-        file_url = db.get_max_comment()
+        file_url = db.get_max_comment() + '.' + get_extension(secure_filename(media.filename))
         media.save(os.path.join('static/uploads/comments', file_url))
     db.add_comment(post_id, user['username'], comment, file_url)
     return redirect(url_for('user_panel'))
@@ -398,8 +401,9 @@ def profile(id):
             elif not allowed_file(photo.filename):
                         return f"Unallowed extention."
             else:
-                db.update_user_profile(id,id)
-                photo.save(os.path.join(app.config['UPLOAD_FOLDER'] + '/profiles', id))
+                file_url = str(id) + '.' + get_extension(secure_filename(photo.filename))
+                db.update_user_profile(id,file_url)
+                photo.save(os.path.join(app.config['UPLOAD_FOLDER'] + '/profiles', file_url))
         db.update_username(username,id)
     user=db.get_user_by_id(id)
     return render_template('profile.html',user=user)

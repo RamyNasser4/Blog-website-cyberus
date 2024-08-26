@@ -46,11 +46,11 @@
 
                     {% if file_extension in ['mp4', 'webm'] %}
                     <video controls class="d-block mb-3" style="max-width: 200px;">
-                        <source src="{{ url_for('static', filename='uploads/' ~ post['file_url']) }}" type="video/{{ file_extension }}">
+                        <source src="{{ url_for('static', filename='uploads/posts/' ~ post['file_url']) }}" type="video/{{ file_extension }}">
                         Your browser does not support the video tag.
                     </video>
                     {% elif file_extension in ['jpg', 'jpeg', 'png'] %}
-                    <img src="{{ url_for('static', filename='uploads/' ~ post['file_url']) }}" alt="Post Media" class="img-fluid mb-3" style="max-width: 100px;">
+                    <img src="{{ url_for('static', filename='uploads/posts/' ~ post['file_url']) }}" alt="Post Media" class="img-fluid mb-3" style="max-width: 100px;">
                     {% endif %}
                     {% endif %}
 
@@ -72,11 +72,11 @@
                             {% set comment_extension = comment['file_url'].split('.')[-1].lower() %}
                             {% if comment_extension in ['mp4', 'webm'] %}
                             <video controls class="d-block mb-2" style="max-width: 200px;">
-                                <source src="{{ url_for('static', filename='uploads/' ~ comment['file_url']) }}" type="video/{{ comment_extension }}">
+                                <source src="{{ url_for('static', filename='uploads/comments/' ~ comment['file_url']) }}" type="video/{{ comment_extension }}">
                                 Your browser does not support the video tag.
                             </video>
                             {% elif comment_extension in ['jpg', 'jpeg', 'png'] %}
-                            <img src="{{ url_for('static', filename='uploads/' ~ comment['file_url']) }}" alt="Comment Media" class="img-fluid" style="max-width: 100px;">
+                            <img src="{{ url_for('static', filename='uploads/comments/' ~ comment['file_url']) }}" alt="Comment Media" class="img-fluid" style="max-width: 100px;">
                             {% endif %}
                             {% endif %}
                         </div>

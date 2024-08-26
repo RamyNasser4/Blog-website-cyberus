@@ -31,11 +31,11 @@
                         {% set file_extension = post.file_url.split('.')[-1] %}
                         {% if file_extension in ['mp4', 'avi', 'mov'] %}
                         <video controls class="d-block mb-3" style="max-width: 100%;">
-                            <source src="{{ url_for('static', filename='uploads/' ~ post.file_url) }}" type="video/{{ file_extension }}">
+                            <source src="{{ url_for('static', filename='uploads/posts/' ~ post.file_url) }}" type="video/{{ file_extension }}">
                             Your browser does not support the video tag.
                         </video>
                         {% else %}
-                        <img src="{{ url_for('static', filename='uploads/' ~ post.file_url) }}" alt="Post media" class="img-fluid mb-3" style="max-height: 200px;max-width: 200px;">
+                        <img src="{{ url_for('static', filename='uploads/posts/' ~ post.file_url) }}" alt="Post media" class="img-fluid mb-3" style="max-height: 200px;max-width: 200px;">
                         {% endif %}
                         {% endif %}
                         <br>

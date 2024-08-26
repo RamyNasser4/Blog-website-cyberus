@@ -158,9 +158,9 @@ def get_all_posts():
 
 def get_max_post():
     conn = get_db_connection()
-    id = conn.execute("SELECT MAX(id) + 1 AS next_id FROM posts")
+    id = conn.execute("SELECT MAX(id) + 1 AS next_id FROM posts").fetchone()
     conn.close()
-    return id
+    return str(id[0])
 def get_users():
     conn = get_db_connection()
     users = conn.execute('SELECT * FROM users').fetchall()
@@ -176,10 +176,10 @@ def add_comment(post_id, username, content, file_url=None):
 
 def get_max_comment():
     conn = get_db_connection()
-    id = conn.execute("SELECT MAX(id) + 1 AS next_id FROM comments;")
+    id = conn.execute("SELECT MAX(id) + 1 AS next_id FROM comments;").fetchone()
     conn.commit()
     conn.close()
-    return id
+    return str(id[0])
 
 def get_comments_by_post(post_id):
     conn = get_db_connection()
