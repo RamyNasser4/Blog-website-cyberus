@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add New USER</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         .error {
             color: red;
@@ -11,40 +13,50 @@
     </style>
 </head>
 <body>
-    <h1>Add New USER</h1>
-    <form id="userForm" method="post">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required>
-        <br>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-        <br>
-        <label for="accountType">Account Type:</label>
-        <select id="accountType" name="account_type" required>
-            <option value="0">Regular User</option>
-            <option value="1">Author</option>
-        </select>
-        <br>
-        <button type="submit">Submit</button>
-        <p id="passwordError" class="error"></p>
-    </form>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Add New USER</h1>
+        <form id="userForm" method="post" class="border p-4 shadow-sm bg-light">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="accountType">Account Type:</label>
+                <select id="accountType" name="account_type" class="form-control" required>
+                    <option value="0">Regular User</option>
+                    <option value="1">Author</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Submit</button>
+            <p id="passwordError" class="error mt-3"></p>
+        </form>
 
-    <br>
-    <a href="{{ url_for('welcome_page') }}">Back to navigate page</a>
+        <div class="text-center mt-4">
+            <a href="{{ url_for('welcome_page') }}" class="btn btn-secondary">Back to Navigate Page</a>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <script>
         document.getElementById('userForm').addEventListener('submit', function (event) {
             const password = document.getElementById('password').value;
             const passwordError = document.getElementById('passwordError');
 
-            // Define strong password criteria
             const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
             if (!strongPasswordRegex.test(password)) {
                 passwordError.textContent = "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.";
-                event.preventDefault();  // Prevent form submission
+                event.preventDefault();
             } else {
-                passwordError.textContent = "";  // Clear error message
+                passwordError.textContent = "";
             }
         });
     </script>
