@@ -199,6 +199,14 @@ def update_user_without_password(username, likes, user_type, id):
     conn.commit()
     conn.close()
 
+
+def update_username(username ,id):
+    conn=get_db_connection()
+    conn.execute('UPDATE users SET username = ?  WHERE id = ?',(username,id))
+    conn.commit()
+    conn.close()
+
+    
 def update_user_with_password(username, hashed_password, likes, user_type, id):
     conn = get_db_connection()
     conn.execute('UPDATE users SET username = ?, password = ?, likes = ?, user_type = ? WHERE id = ?',
@@ -287,6 +295,7 @@ def upload_file():
     else:
         flash('File type not allowed')
         return redirect(request.url)
+
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):

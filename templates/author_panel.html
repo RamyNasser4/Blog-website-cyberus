@@ -49,6 +49,9 @@
             </div>
             {% endfor %}
         </div>
+         <div class="mb-4">
+            <a href="{{ url_for('profile',id=session['user_id']) }}" class="btn btn-primary">Update Profile</a>
+        </div>
 
         <!-- Logout Button -->
         <div class="mt-4">

@@ -1,3 +1,4 @@
+from wsgiref.validate import validator
 from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory, flash
 import secrets, re
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -387,5 +388,30 @@ def logout():
     session.pop('username', None)
     session.pop('user_id', None)
     return redirect(url_for('login'))
+
+@app.route('/profile/<int:id>',methods=['GET','POST'])
+def profile(id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    if request.method == 'POST':
+        username = request.form.get('username')
+        photo = request.files.get('photo')  # Get the uploaded photo
+        if not username:
+            return "Missing form data", 400
+
+
+        if photo:
+            if not allowed_file_size(photo):
+                        return f"Unallowed size."
+            elif not allowed_file(photo.filename):
+                        return f"Unallowed extention."
+            else:
+                filename = secure_filename(photo.filename)
+                db.update_user_profile(id,filename)
+                photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        db.update_username(username,id)
+    user=db.get_user_by_id(id)
+    return render_template('profile.html',user=user)
+
 if __name__ == '__main__':
     app.run(debug=True)
