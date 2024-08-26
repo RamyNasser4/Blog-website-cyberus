@@ -64,7 +64,7 @@ def welcome_page():
 def user_panel():
     if 'username' not in session:
         return redirect(url_for('login'))
-
+    
     posts = db.get_all_posts()
     comments = {post['id']: db.get_comments_by_post(post['id']) for post in posts}
 
@@ -74,7 +74,11 @@ def user_panel():
 def update_user(id):
     if 'username' not in session:
         return redirect(url_for('login'))
-
+    if session['user_type'] == 0:
+        return redirect(url_for('user_panel'))
+    if session['user_type'] == 1:
+        return redirect(url_for('author_panel'))
+    
     user = db.get_user_by_id(id)
     
     if user is None:
@@ -126,6 +130,12 @@ def add_user():
 
 @app.route('/delete/<int:id>', methods=['POST'])
 def delete_user(id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    if session['user_type'] == 0:
+        return redirect(url_for('user_panel'))
+    if session['user_type'] == 1:
+        return redirect(url_for('author_panel'))
     db.delete_user(id)
     return redirect(url_for('manage_admins'))
 
@@ -145,6 +155,7 @@ def login():
         else:
             session['username'] = username
             session['user_id'] = user['id']  # Ensure user_id is set
+            session['user_type'] = user['user_type']
             # Redirect based on user type
             if user['user_type'] == 2:
                 return redirect(url_for('manage_admins'))
@@ -173,7 +184,8 @@ def manage_admins():
             hashed_password = generate_password_hash(password)
             db.add_admin(new_username, hashed_password)
             session['username'] = new_username
-            session['user_id'] = db.get_user_by_username(new_username)['id']  # Ensure user_id is set
+            session['user_id'] = db.get_user_by_username(new_username)['id']
+            session['user_type'] = 2  # Ensure user_id is set
             return redirect(url_for('manage_admins'))
 
         return render_template('create_admin.html')
@@ -217,14 +229,21 @@ def author_panel():
         return redirect(url_for('login'))
 
     user = db.get_user_by_username(session['username'])
-    if user is None or user['user_type'] != 1:
+    if user is None:
         return redirect(url_for('user_panel'))
-
+    if session['user_type'] == 0:
+        return redirect(url_for('user_panel'))
+    if session['user_type'] == 2:
+        return redirect(url_for('manage_admins'))
     posts = db.get_posts_by_author(user['id'])
     return render_template('author_panel.html', posts=posts, user=user)
 
 @app.route('/create_post', methods=['GET', 'POST'])
 def create_post():
+    if session['user_type'] == 0:
+        return redirect(url_for('user_panel'))
+    if session['user_type'] == 2:
+        return redirect(url_for('manage_admins'))
     if request.method == 'POST':
         title = request.form['title']
         content = request.form['content']
@@ -243,6 +262,10 @@ def create_post():
 
 @app.route('/search', methods=['GET'])
 def search_posts():
+    if session['user_type'] == 1:
+        return redirect(url_for('author_panel'))
+    if session['user_type'] == 2:
+        return redirect(url_for('manage_admins'))
     query = request.args.get('query', '')
     posts = db.search_posts(query)
     return render_template('search_results.html', posts=posts)

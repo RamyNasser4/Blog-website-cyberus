@@ -4,22 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Update User</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <h1>Update User</h1>
-    <form action="{{ url_for('update_user', id=user.id) }}" method="POST">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" value="{{ user.username }}" required>
+    <div class="container mt-5">
+        <!-- Header -->
+        <h1 class="mb-4">Update User</h1>
+        
+        <!-- Update User Form -->
+        <form action="{{ url_for('update_user', id=user.id) }}" method="POST">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required>
+            </div>
 
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" value="{{ user.password }}" required>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" class="form-control" id="password" name="password" value="{{ user.password }}" required>
+            </div>
 
-        <label for="likes">likes:</label>
-        <input type="text" id="likes" name="likes" value="{{ user.likes }}" required>
+            <div class="form-group">
+                <label for="likes">Likes:</label>
+                <input type="text" class="form-control" id="likes" name="likes" value="{{ user.likes }}" required>
+            </div>
 
-        <button type="submit">Update User</button>
-    </form>
+            <button type="submit" class="btn btn-primary">Update User</button>
+            <a href="{{ url_for('welcome_page') }}" class="btn btn-secondary ml-2">Back to Home</a>
+        </form>
+    </div>
 
-    <a href="{{ url_for('welcome_page') }}">Back to Home</a>
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
