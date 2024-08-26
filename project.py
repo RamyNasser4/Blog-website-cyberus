@@ -236,13 +236,7 @@ def create_post():
             file_url = filename
             media.save(os.path.join('static/uploads', filename))
         
-        conn = db.get_db_connection()
-        conn.execute('''
-            INSERT INTO posts (author_id, title, content, file_url)
-            VALUES (?, ?, ?, ?)
-        ''', (session['user_id'], title, content, file_url))
-        conn.commit()
-        conn.close()
+        db.add_post(session['user_id'],title,content,file_url)
         return redirect(url_for('author_panel'))
     
     return render_template('create_post.html')
