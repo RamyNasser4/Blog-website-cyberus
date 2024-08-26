@@ -360,7 +360,10 @@ def like_post(post_id):
         return redirect(url_for('login'))
 
     user = db.get_user_by_username(session['username'])
-    db.add_like(post_id, user['id'])
+    print(db.has_user_liked_post(session['user_id'],post_id))
+    if not db.has_user_liked_post(session['user_id'],post_id):
+        db.record_user_like(post_id, user['id'])
+        db.increment_post_likes(post_id)
     return redirect(url_for('user_panel'))
 
 @app.route('/comment/<int:post_id>', methods=['POST'])
@@ -377,8 +380,7 @@ def comment_on_post(post_id):
         filename = secure_filename(media.filename)
         file_url = filename
         media.save(os.path.join('static/uploads', filename))
-    
-    db.add_comment(post_id, user['id'], comment, file_url)
+    db.add_comment(post_id, user['username'], comment, file_url)
     return redirect(url_for('user_panel'))
 @app.route('/logout')
 def logout():
