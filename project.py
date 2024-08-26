@@ -64,7 +64,8 @@ def welcome_page():
 def user_panel():
     if 'username' not in session:
         return redirect(url_for('login'))
-    
+    if session['user_type'] == 1:
+        return redirect(url_for('author_panel'))
     posts = db.get_all_posts()
     comments = {post['id']: db.get_comments_by_post(post['id']) for post in posts}
 
@@ -74,9 +75,9 @@ def user_panel():
 def update_user(id):
     if 'username' not in session:
         return redirect(url_for('login'))
-    if session['user_type'] == 0:
+    if session['user_type'] == 0 and id != session['user_id']:
         return redirect(url_for('user_panel'))
-    if session['user_type'] == 1:
+    if session['user_type'] == 1 and id != session['user_id']:
         return redirect(url_for('author_panel'))
     
     user = db.get_user_by_id(id)
@@ -242,8 +243,6 @@ def author_panel():
 def create_post():
     if session['user_type'] == 0:
         return redirect(url_for('user_panel'))
-    if session['user_type'] == 2:
-        return redirect(url_for('manage_admins'))
     if request.method == 'POST':
         title = request.form['title']
         content = request.form['content']
