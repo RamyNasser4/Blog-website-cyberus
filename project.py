@@ -6,6 +6,8 @@ import db
 import os
 from werkzeug.utils import secure_filename
 from jinja2 import Environment
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 def endswith_filter(value, extension):
     return value.endswith(extension)
@@ -14,7 +16,8 @@ env = Environment()
 env.filters['endswith'] = endswith_filter
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
-
+limiter = Limiter(app=app, key_func=get_remote_address, default_limits=[
+                  "50 per minute"], storage_uri="memory://")
 UPLOAD_FOLDER = 'static/uploads/'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
@@ -105,7 +108,7 @@ def update_user(id):
         return redirect(url_for('manage_admins'))
     
     return render_template('update_user.html', user=user)
-
+@limiter.limit("10 per minute")
 @app.route('/add', methods=['GET', 'POST'])
 def add_user():
     if request.method == 'POST':
@@ -140,7 +143,7 @@ def delete_user(id):
         return redirect(url_for('author_panel'))
     db.delete_user(id)
     return redirect(url_for('manage_admins'))
-
+@limiter.limit("10 per minute")
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
