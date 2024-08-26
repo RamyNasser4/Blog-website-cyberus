@@ -115,9 +115,10 @@ def add_user():
             return "Invalid input", 400
 
         if db.get_user_by_username(username):
-            return "Username already exists", 400            
+            return "Username already exists", 400
 
-        strong_password_regex = re.compile(r'^(?=.[a-z])(?=.[A-Z])(?=.\d)(?=.[@$!%?&])[A-Za-z\d@$!%?&]{8,}$')
+        # Server-side password validation
+        strong_password_regex = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$')
         if not strong_password_regex.match(password):
             return "Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.", 400
 
@@ -373,7 +374,7 @@ def comment_on_post(post_id):
     media = request.files.get('media')
 
     file_url = None
-    if media and allowed_file(media.filename):
+    if media and allowed_file(media.filename) and allowed_file_size(media):
         filename = secure_filename(media.filename)
         file_url = filename
         media.save(os.path.join('static/uploads', filename))

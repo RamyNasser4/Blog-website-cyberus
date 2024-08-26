@@ -84,7 +84,7 @@
                     </div>
 
                     <!-- Comment Form -->
-                    <form action="{{ url_for('comment_post', post_id=post['id']) }}" method="post" enctype="multipart/form-data" class="mt-3">
+                    <form action="{{ url_for('comment_on_post', post_id=post['id']) }}" method="post" enctype="multipart/form-data" class="mt-3">
                         <div class="form-group">
                             <textarea name="content" class="form-control mb-2" placeholder="Add a comment" required></textarea>
                         </div>
