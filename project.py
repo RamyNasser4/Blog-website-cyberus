@@ -272,8 +272,6 @@ def create_post():
 def search_posts():
     if session['user_type'] == 1:
         return redirect(url_for('author_panel'))
-    elif session['user_type'] == 2:
-        return redirect(url_for('manage_admins'))
     query = request.args.get('query', '')
     posts = db.search_posts(query)
     return render_template('search_results.html', posts=posts)
