@@ -94,8 +94,8 @@ def update_user(id):
 
         if not username:
             return "Missing form data", 400
-
-        if password:
+        
+        if password != user['password']:
             hashed_password = generate_password_hash(password)
             db.update_user_with_password(username, hashed_password, likes, user_type, id)
         else:
@@ -254,17 +254,9 @@ def create_post():
         
         file_url = None
         if media and allowed_file(media.filename) and allowed_file_size(media):
-            filename = secure_filename(media.filename)
-            file_url = filename
-            media.save(os.path.join('static/uploads', filename))
-        
-        conn = db.get_db_connection()
-        conn.execute('''
-            INSERT INTO posts (author_id, title, content, file_url)
-            VALUES (?, ?, ?, ?)
-        ''', (session['user_id'], title, content, file_url))
-        conn.commit()
-        conn.close()
+            file_url = db.get_max_post()
+            media.save(os.path.join('static/uploads/posts', file_url))
+        db.add_post(session['user_id'],title,content,file_url)
         return redirect(url_for('author_panel'))
     
     return render_template('create_post.html')
@@ -299,10 +291,9 @@ def edit_post(post_id):
 
         # Handle file upload
         file_url = post['file_url']  # Keep the existing file URL unless a new file is uploaded
-        if media and allowed_file(media.filename):
-            filename = secure_filename(media.filename)
-            file_url = filename
-            media.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        if media and allowed_file(media.filename) and allowed_file_size(media):
+            file_url = post_id
+            media.save(os.path.join(app.config['UPLOAD_FOLDER'] + '/posts', file_url))
 
         # Update the post in the database
         db.update_post(post_id, title, content)
@@ -341,7 +332,7 @@ def delete_post(post_id):
 
     # Delete the associated media file from the uploads folder, if any
     if post['file_url']:
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], post['file_url'])
+        file_path = os.path.join(app.config['UPLOAD_FOLDER']+'/posts', post['file_url'])
         try:
             if os.path.exists(file_path):
                 os.remove(file_path)
@@ -378,9 +369,8 @@ def comment_on_post(post_id):
 
     file_url = None
     if media and allowed_file(media.filename) and allowed_file_size(media):
-        filename = secure_filename(media.filename)
-        file_url = filename
-        media.save(os.path.join('static/uploads', filename))
+        file_url = db.get_max_comment()
+        media.save(os.path.join('static/uploads/comments', file_url))
     db.add_comment(post_id, user['username'], comment, file_url)
     return redirect(url_for('user_panel'))
 @app.route('/logout')
@@ -393,6 +383,8 @@ def logout():
 def profile(id):
     if 'username' not in session:
         return redirect(url_for('login'))
+    if id != session['user_id']:
+        return redirect(url_for('user_panel'))
     if request.method == 'POST':
         username = request.form.get('username')
         photo = request.files.get('photo')  # Get the uploaded photo
@@ -406,9 +398,8 @@ def profile(id):
             elif not allowed_file(photo.filename):
                         return f"Unallowed extention."
             else:
-                filename = secure_filename(photo.filename)
-                db.update_user_profile(id,filename)
-                photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                db.update_user_profile(id,id)
+                photo.save(os.path.join(app.config['UPLOAD_FOLDER'] + '/profiles', id))
         db.update_username(username,id)
     user=db.get_user_by_id(id)
     return render_template('profile.html',user=user)
