@@ -390,8 +390,8 @@ def profile(id):
         photo = request.files.get('photo')  # Get the uploaded photo
         if not username:
             return "Missing form data", 400
-
-
+        if username != session['username'] and db.get_user_by_username(username):
+            return "Invalid username", 400
         if photo:
             if not allowed_file_size(photo):
                         return f"Unallowed size."
