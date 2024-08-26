@@ -4,27 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comments on Post</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <h1>Comments on Post: {{ post['title'] }}</h1>
-    <p>{{ post['content'] }}</p>
+    <div class="container mt-5">
+        <h1 class="mb-4">Comments on Post: {{ post['title'] }}</h1>
+        <p class="mb-5">{{ post['content'] }}</p>
 
-    <form method="post">
-        <label for="content">Your Comment:</label>
-        <textarea id="content" name="content" required></textarea>
-        <button type="submit">Submit Comment</button>
-    </form>
+        <form method="post" class="mb-5">
+            <div class="form-group">
+                <label for="content">Your Comment:</label>
+                <textarea id="content" name="content" class="form-control" rows="4" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit Comment</button>
+        </form>
 
-    <h2>Comments:</h2>
-    <ul>
-        {% for comment in comments %}
-        <li>
-            <strong>{{ comment['username'] }}</strong>: {{ comment['content'] }}
-            <span>({{ comment['created_at'] }})</span>
-        </li>
-        {% endfor %}
-    </ul>
+        <h2 class="mb-4">Comments:</h2>
+        <ul class="list-group mb-5">
+            {% for comment in comments %}
+            <li class="list-group-item">
+                <strong>{{ comment['username'] }}</strong>: {{ comment['content'] }}
+                <span class="text-muted">({{ comment['created_at'] }})</span>
+            </li>
+            {% endfor %}
+        </ul>
 
-    <a href="{{ url_for('user_panel') }}">Back to User Panel</a>
+        <a href="{{ url_for('user_panel') }}" class="btn btn-secondary">Back to User Panel</a>
+    </div>
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
