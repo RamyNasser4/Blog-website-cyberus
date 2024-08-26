@@ -1,16 +1,57 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search Results</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .list-group-item {
+            padding: 1.5rem;
+            font-size: 1.2rem;
+        }
+        .post-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #000;
+            margin-bottom: 0.5rem;
+        }
+        .post-content {
+            font-size: 1.2rem;
+            color: #555;
+        }
+        .no-results {
+            text-align: center;
+            font-size: 1.5rem;
+            color: #6c757d;
+            margin-top: 2rem;
+        }
+    </style>
 </head>
 <body>
-    <h1>Search Results</h1>
-    <ul>
-        {% for post in posts %}
-        <li>{{ post.title }} - {{ post.content }}</li>
-        {% else %}
-        <li>No results found</li>
-        {% endfor %}
-    </ul>
+    <div class="container mt-5">
+        <h1 class="mb-5">Search Results</h1>
+        <ul class="list-group">
+            {% for post in posts %}
+            <li class="list-group-item">
+                <div class="post-title">{{ post.title }}</div>
+                <div class="post-content">{{ post.content }}</div>
+            </li>
+            {% else %}
+            <li class="list-group-item no-results">No results found</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
