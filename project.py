@@ -320,10 +320,10 @@ def delete_post(post_id):
         flash('Post not found.')
         return redirect(url_for('user_panel'))
 
-    # Check if the logged-in user is the author of the post
-    if post['author_id'] != session['user_id']:
+    # Check if the logged-in user is the author of the post 
+    if post['author_id'] != session['user_id'] and session['user_type']!=2:
         flash('You do not have permission to delete this post.')
-        return redirect(url_for('user_panel'))
+        return redirect(url_for('author_panel'))
 
     # Delete the post from the database
     conn.execute('DELETE FROM posts WHERE id = ?', (post_id,))
@@ -340,7 +340,8 @@ def delete_post(post_id):
                 flash('Media file not found.')
         except Exception as e:
             flash(f'An error occurred while deleting the media file: {e}')
-
+    if session['user_type'] == 2:
+        return redirect(url_for('manage_posts'))
     return redirect(url_for('user_panel'))
 
 
