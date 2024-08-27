@@ -331,7 +331,18 @@ def delete_post(post_id):
     if post['author_id'] != session['user_id'] and user['user_type'] != 2:
         flash('You do not have permission to delete this post.')
         return redirect(url_for('author_panel'))
-
+    comments = db.get_comments_by_post(post_id)
+    for comment in comments:
+        if comment['file_url']:
+            comment_file_path = os.path.join(app.config['UPLOAD_FOLDER'] + '/comments', comment['file_url'])
+            try:
+                if os.path.exists(comment_file_path):
+                    os.remove(comment_file_path)
+                    flash('Comment photo deleted successfully.')
+                else:
+                    flash('Comment photo file not found.')
+            except Exception as e:
+                flash(f'An error occurred while deleting the comment photo: {e}')
     # Delete the post from the database
     conn.execute('DELETE FROM posts WHERE id = ?', (post_id,))
     conn.commit()
