@@ -369,11 +369,13 @@ def like_post(post_id):
         return redirect(url_for('login'))
 
     user = db.get_user_by_username(session['username'])
-    print(db.has_user_liked_post(session['user_id'],post_id))
-    if not db.has_user_liked_post(session['user_id'],post_id):
+
+    # Check if the user has already liked this post
+    if not db.has_user_liked_post(user['id'], post_id):
         db.record_user_like(post_id, user['id'])
         db.increment_post_likes(post_id)
     return redirect(url_for('user_panel'))
+
 
 @app.route('/comment/<int:post_id>', methods=['POST'])
 def comment_on_post(post_id):

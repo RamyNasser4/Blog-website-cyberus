@@ -3,11 +3,12 @@ import sqlite3
 from flask import Flask, request, redirect, url_for, flash, send_from_directory
 from werkzeug.utils import secure_filename
 import os
+import secrets
  
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads/'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB limit
-app.secret_key = 'supersecretkey'  # For flashing messages
+app.secret_key = secrets.token_hex(16)  # For flashing messages
 
 ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'png', 'gif'}
 def get_db_connection():
@@ -266,16 +267,29 @@ def has_user_liked_post(user_id, post_id):
     liked = conn.execute('SELECT 1 FROM post_likes WHERE user_id = ? AND post_id = ?', (user_id, post_id)).fetchone()
     conn.close()
     return liked is not None
-def record_user_like(user_id, post_id):
+def record_user_like(post_id, user_id):
     conn = get_db_connection()
     conn.execute('INSERT INTO post_likes (user_id, post_id) VALUES (?, ?)', (user_id, post_id))
     conn.commit()
     conn.close()
 def increment_post_likes(post_id):
     conn = get_db_connection()
+    
+    # Increment likes in the posts table
     conn.execute('UPDATE posts SET likes = likes + 1 WHERE id = ?', (post_id,))
+    
+    # Fetch the author_id of the post
+    author = conn.execute('SELECT * FROM posts WHERE id = ?', (post_id,)).fetchone()
+    
+    # Ensure author is not None
+    if author:
+        # Increment likes for the author in the users table
+        conn.execute('UPDATE users SET likes = likes + 1 WHERE id = ?', (author['author_id'],))
+    
+    # Commit changes and close the connection
     conn.commit()
     conn.close()
+
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
